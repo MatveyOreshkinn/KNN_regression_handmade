@@ -4,9 +4,14 @@ from scipy.spatial import distance
 
 
 class MyKNNReg:
-    def __init__(self, k: int = 3, train_size: int = None) -> None:
+    def __init__(self,
+                 k: int = 3,
+                 train_size: int = None,
+                 metric: str = 'euclidean',
+                 weight: str = 'uniform') -> None:
         self.k = k
         self.train_size = train_size
+        self.metric = metric
 
     def __str__(self) -> str:
         return f'MyKNNReg class: k={self.k}'
@@ -26,8 +31,15 @@ class MyKNNReg:
             for j in range(len(self.X)):
                 point2 = self.X.iloc[j]
 
-                euclid = distance.euclidean(point1, point2)
-                distances.append((euclid, self.y[j]))
+                if self.metric == 'euclidean':
+                    d = distance.euclidean(point1, point2)
+                elif self.metric == 'chebyshev':
+                    d = distance.chebyshev(point1, point2)
+                elif self.metric == 'manhattan':
+                    d = distance.cityblock(point1, point2)
+                elif self.metric == 'cosine':
+                    d = distance.cosine(point1, point2)
+                distances.append((d, self.y[j]))
 
             k_distances = sorted(distances, key=lambda x: x[0])[:self.k]
             k_classes = sum(el[1] for el in k_distances) / len(k_distances)
