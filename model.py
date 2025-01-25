@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from scipy.spatial import distance
 
 
 class MyKNNReg:
@@ -14,3 +15,23 @@ class MyKNNReg:
         self.train_size = X.shape[0], X.shape[1]
         self.X = X.copy()  # Сохраняем копию, чтобы не менять исходный DataFrame
         self.y = y.copy()
+
+    def predict(self, X: pd.DataFrame) -> np.ndarray:
+        pred = []
+
+        for i in range(len(X)):
+            distances = []
+            point1 = X.iloc[i]
+
+            for j in range(len(self.X)):
+                point2 = self.X.iloc[j]
+
+                euclid = distance.euclidean(point1, point2)
+                distances.append((euclid, self.y[j]))
+
+            k_distances = sorted(distances, key=lambda x: x[0])[:self.k]
+            k_classes = sum(el[1] for el in k_distances) / len(k_distances)
+
+            pred.append(k_classes)
+
+        return np.array(pred)
